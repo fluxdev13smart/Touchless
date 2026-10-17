@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.SeekBar
@@ -27,6 +28,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GestureService.sensitivity = prefs.getInt(KEY_SENSITIVITY, 50)
+        GestureService.allApps = prefs.getBoolean(KEY_ALL_APPS, false)
 
         val pad = dp(20)
         val column = LinearLayout(this).apply {
@@ -65,16 +67,25 @@ class MainActivity : Activity() {
         })
         column.addView(text("Higher reacts to smaller movements. Lower avoids accidental triggers.", 13f))
 
+        column.addView(CheckBox(this).apply {
+            text = "Work in every app (otherwise only Instagram, TikTok, YouTube, Netflix and other video apps)"
+            isChecked = GestureService.allApps
+            setOnCheckedChangeListener { _, checked ->
+                GestureService.allApps = checked
+                prefs.edit().putBoolean(KEY_ALL_APPS, checked).apply()
+            }
+        })
+
         column.addView(text("Gestures", 17f, bold = true, top = 24))
         column.addView(
             text(
                 "Hold your hand 30-80 cm from the front camera.\n\n" +
                     "One finger up (index):\n" +
-                    "  - Push toward the screen: play / pause\n" +
+                    "  - Push toward the screen: play / pause (next video in Reels / TikTok)\n" +
                     "  - Swipe left / right: rewind / fast-forward (double-tap)\n" +
                     "  - Swipe up / down: volume\n\n" +
                     "Two fingers up (index + middle):\n" +
-                    "  - Push toward the screen: Back\n" +
+                    "  - Push toward the screen: Back (previous video in Reels / TikTok)\n" +
                     "  - Swipe up / down: scroll or next / previous video\n" +
                     "  - Swipe left / right: swipe sideways",
                 15f,
@@ -163,6 +174,7 @@ class MainActivity : Activity() {
 
     private companion object {
         const val KEY_SENSITIVITY = "sensitivity"
+        const val KEY_ALL_APPS = "all_apps"
         const val REQUEST_PERMISSIONS = 1
     }
 }

@@ -35,16 +35,37 @@ class TouchlessAccessibilityService : AccessibilityService() {
         super.onDestroy()
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    @Volatile
+    private var currentPackage: String = ""
+
+    /** Watches which app is on screen, so the camera only runs in supported apps. */
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        val pkg = event.packageName?.toString() ?: return
+        if (isIgnored(pkg)) return
+        currentPackage = pkg
+        GestureService.instance?.setCameraActive(GestureService.allApps || pkg in SUPPORTED_APPS)
+    }
+
+    private fun isIgnored(pkg: String): Boolean =
+        pkg == packageName ||
+            pkg == "com.android.systemui" ||
+            pkg.contains("inputmethod") ||
+            pkg.contains("keyboard") ||
+            pkg.contains("honeyboard")
 
     override fun onInterrupt() = Unit
 
     fun perform(gesture: Gesture) {
         main.post {
             when (gesture) {
-                is Gesture.Tap ->
-                    if (gesture.fingers == 1) mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
-                    else performGlobalAction(GLOBAL_ACTION_BACK)
+                is Gesture.Tap -> when {
+                    // Reels / TikTok: tap = next video, two-finger tap = previous video
+                    currentPackage in SHORT_VIDEO_APPS ->
+                        twoFingers(if (gesture.fingers == 1) Direction.UP else Direction.DOWN)
+                    gesture.fingers == 1 -> mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+                    else -> performGlobalAction(GLOBAL_ACTION_BACK)
+                }
 
                 is Gesture.Swipe ->
                     if (gesture.fingers == 1) oneFinger(gesture.direction)
@@ -108,5 +129,22 @@ class TouchlessAccessibilityService : AccessibilityService() {
     companion object {
         @Volatile
         var instance: TouchlessAccessibilityService? = null
+
+        private val SHORT_VIDEO_APPS = setOf(
+            "com.instagram.android",
+            "com.zhiliaoapp.musically",
+            "com.ss.android.ugc.trill",
+        )
+
+        private val SUPPORTED_APPS = SHORT_VIDEO_APPS + setOf(
+            "com.google.android.youtube",
+            "com.netflix.mediaclient",
+            "com.amazon.avod.thirdpartyclient",
+            "com.disney.disneyplus",
+            "in.startv.hotstar",
+            "com.hulu.plus",
+            "com.facebook.katana",
+            "com.snapchat.android",
+        )
     }
 }

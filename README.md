@@ -23,6 +23,16 @@ The APK is built in the cloud by GitHub Actions on every push to `main`.
 2. Download `Touchless.apk` from the **Touchless (latest build)** release.
 3. Open it on your phone and allow installs from your browser or file manager when asked.
 
+### If Play Protect says "App blocked to protect your device"
+
+In some countries Google Play Protect blocks any app that declares an accessibility service when it is installed from a browser or file manager (apps from the Play Store are not affected). Touchless needs the accessibility service to tap and swipe, so the options are:
+
+- Install from a computer with `adb install Touchless.apk` (USB debugging on). This is not a browser or file-manager install.
+- Try turning off "Scan apps with Play Protect" in the Play Store (profile > Play Protect > settings), install, then turn it back on.
+- Publish the app through Google Play (a closed or internal testing track also works).
+
+On Android 13+ you may also have to open Settings > Apps > Touchless > three dots > **Allow restricted settings** before the accessibility switch can be turned on.
+
 ## First run
 
 1. Open Touchless and tap **Open accessibility settings**, find Touchless under installed apps and switch it on.
@@ -45,4 +55,6 @@ The APK ends up in `app/build/outputs/apk/debug/`.
 
 - Gesture detection is heuristic (finger pose plus movement distance and speed), so expect to tune the slider.
 - Android only lets the camera run while a notification is showing, which is why a "Touchless is on" notification appears.
-- Touchless does not auto-start when you open a particular app; turn it on from the app or notification.
+- Like Spatial Touch, Touchless uses its accessibility service to see which app is open. The camera only runs while a supported app (Instagram, TikTok, YouTube, Netflix, Prime Video, Disney+, Hotstar, Hulu, Facebook, Snapchat) is on screen. Tick "Work in every app" to use it everywhere.
+- You still turn Touchless on once from the app; Android does not let a background service start the camera by itself.
+- In Instagram Reels and TikTok, a one-finger push goes to the next video and a two-finger push goes to the previous one.

@@ -36,7 +36,11 @@ class GestureService : LifecycleService() {
 
     private var landmarker: HandLandmarker? = null
     private var cameraProvider: ProcessCameraProvider? = null
+    private var analysis: ImageAnalysis? = null
     private lateinit var analysisExecutor: ExecutorService
+
+    @Volatile
+    private var wantCamera = true
 
     private val engine = HandGestureEngine(
         sensitivity = { sensitivity },
@@ -45,7 +49,37 @@ class GestureService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        val saved = getSharedPreferences("touchless", MODE_PRIVATE)
+        sensitivity = saved.getInt("sensitivity", 50)
+        allApps = saved.getBoolean("all_apps", false)
         analysisExecutor = Executors.newSingleThreadExecutor()
+        instance = this
+    }
+
+    /**
+     * Called by the accessibility service when the foreground app changes.
+     * The camera only runs while a supported app is open, like Spatial Touch.
+     */
+    fun setCameraActive(active: Boolean) {
+        wantCamera = active
+        ContextCompat.getMainExecutor(this).execute { applyCameraState() }
+    }
+
+    private fun applyCameraState() {
+        val provider = cameraProvider ?: return
+        val useCase = analysis ?: return
+        try {
+            if (wantCamera) {
+                if (!provider.isBound(useCase)) {
+                    provider.bindToLifecycle(this, CameraSelector.DEFAULT_FRONT_CAMERA, useCase)
+                }
+            } else {
+                provider.unbindAll()
+                engine.onNoHand()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not switch the camera", e)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -110,13 +144,14 @@ class GestureService : LifecycleService() {
             try {
                 val provider = future.get()
                 cameraProvider = provider
-                val analysis = ImageAnalysis.Builder()
+                val useCase = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .build()
-                analysis.setAnalyzer(analysisExecutor) { proxy -> analyze(proxy) }
+                useCase.setAnalyzer(analysisExecutor) { proxy -> analyze(proxy) }
+                analysis = useCase
                 provider.unbindAll()
-                provider.bindToLifecycle(this, CameraSelector.DEFAULT_FRONT_CAMERA, analysis)
+                applyCameraState()
             } catch (e: Exception) {
                 Log.e(TAG, "Could not start the camera", e)
                 stopSelf()
@@ -177,6 +212,7 @@ class GestureService : LifecycleService() {
 
     override fun onDestroy() {
         running = false
+        instance = null
         try {
             cameraProvider?.unbindAll()
         } catch (_: Exception) {
@@ -196,6 +232,13 @@ class GestureService : LifecycleService() {
 
         @Volatile
         var running = false
+
+        @Volatile
+        var instance: GestureService? = null
+
+        /** When true Touchless works in every app, not only the supported video apps. */
+        @Volatile
+        var allApps = false
 
         /** 0..100. Higher means smaller movements trigger gestures. */
         @Volatile
