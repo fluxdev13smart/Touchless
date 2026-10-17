@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+*.apk
+*.aab
+
+# Downloaded by the build (see .github/workflows/build.yml)
+app/src/main/assets/hand_landmarker.task
