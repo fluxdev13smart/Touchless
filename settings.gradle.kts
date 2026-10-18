@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Touchless"
+rootProject.name = "Roadie"
 include(":app")

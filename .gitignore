@@ -8,5 +8,5 @@ captures/
 *.apk
 *.aab
 
-# Downloaded by the build (see .github/workflows/build.yml)
-app/src/main/assets/hand_landmarker.task
+# Fonts are fetched by the build (see .github/workflows/build.yml)
+app/src/main/assets/www/fonts/*.woff2

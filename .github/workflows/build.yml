@@ -19,32 +19,39 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bundle fonts so the app looks right with no internet
+        run: |
+          mkdir -p /tmp/fonts && cd /tmp/fonts && npm init -y >/dev/null
+          npm i @fontsource-variable/figtree @fontsource/share-tech-mono
+          mkdir -p "$GITHUB_WORKSPACE/app/src/main/assets/www/fonts"
+          cp node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2 "$GITHUB_WORKSPACE/app/src/main/assets/www/fonts/"
+          cp node_modules/@fontsource/share-tech-mono/files/share-tech-mono-latin-400-normal.woff2 "$GITHUB_WORKSPACE/app/src/main/assets/www/fonts/"
+          ls -l "$GITHUB_WORKSPACE/app/src/main/assets/www/fonts"
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
 
-      - name: Download hand tracking model
-        run: |
-          mkdir -p app/src/main/assets
-          curl -fL -o app/src/main/assets/hand_landmarker.task \
-            https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
-          ls -l app/src/main/assets
-
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+      - name: Build APK
+        run: gradle assembleRelease --stacktrace
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk Touchless.apk
+        run: cp app/build/outputs/apk/release/app-release.apk Roadie.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Touchless-apk
-          path: Touchless.apk
+          name: Roadie-apk
+          path: Roadie.apk
 
       - name: Publish to the "latest" release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Touchless (latest build)
-          body: Latest build from the main branch. Download Touchless.apk below and install it on your phone.
-          files: Touchless.apk
+          name: Roadie (latest build)
+          body: Latest build from the main branch. Download Roadie.apk below, open it on your Android tablet and allow installs from this source.
+          files: Roadie.apk
+          fail_on_unmatched_files: true
