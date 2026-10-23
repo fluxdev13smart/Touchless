@@ -4,9 +4,12 @@ A dark, Spotify-style music player for a car tablet. Pick one main folder; every
 becomes a category (Rock, Chill, Arabic…). Roadie has its own **10-band equaliser** that really
 shapes the sound, so it works even when the car's own EQ is locked.
 
+- Browse like Retro Music Player: **Folders** (your main-folder categories), Songs, Albums, Artists, Genres and Playlists, plus a "For you" home with last added, recently played and favourites
 - Cover art is read from your songs, and the full-screen player takes its colours from the cover
-- Slide animation between songs (buttons or swipe), three Now Playing looks: Blur, Card, Vinyl
+- Slide animation between songs (buttons or swipe) and 8 Now Playing looks: Blur, Card, Vinyl, Full, Adaptive, Circle, Classic, Minimal
 - Live visuals while playing (Halo, Skyline, Warp, Waves, Rings, or Auto to rotate them)
+- Weather effects over the player: snow, rain, storm, stars, fireflies, petals, leaves, embers, bubbles, aurora
+- Synced lyrics from `.lrc` files next to the songs (or lyrics inside the tags), queue with play next / add to queue, playlists, favourites, sleep timer, playback speed
 - Steering-wheel / Bluetooth buttons, keeps playing when another app is in front
 - Remembers your folder, so it opens straight to your music next time
 
@@ -28,7 +31,7 @@ The APK is rebuilt on every push to `main`. To rebuild by hand: **Actions → Bu
 
 | Path | What it is |
 | --- | --- |
-| `app/src/main/assets/www/index.html` | The whole player (UI, EQ, visuals) |
+| `app/src/main/assets/www/` | The player: `index.html`, `app.css`, and `core`, `audio`, `views`, `player`, `fx`, `main` scripts |
 | `app/src/main/java/app/roadie/player/` | Folder access, the on-device audio server, media keys |
 | `branding/` | Logo (1024 and 512 px) |
 | `.github/workflows/build-apk.yml` | Builds and publishes the APK |
