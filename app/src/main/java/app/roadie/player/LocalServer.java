@@ -96,7 +96,9 @@ final class LocalServer {
             if (!"GET".equals(method) && !head) {
                 simple(out, 405, "Method Not Allowed");
             } else if (path.startsWith("/m/")) {
-                media(head, path, h.get("range"), out);
+                media(head, path, h.get("range"), out, false);
+            } else if (path.startsWith("/l/")) {
+                media(head, path, h.get("range"), out, true);
             } else {
                 asset(head, path, out);
             }
@@ -169,8 +171,8 @@ final class LocalServer {
 
     // ---------- songs ----------
 
-    private void media(boolean head, String path, String range, OutputStream out) throws IOException {
-        // /m/<token>/<id>
+    private void media(boolean head, String path, String range, OutputStream out, boolean lyrics) throws IOException {
+        // /m/<token>/<id>  (song)   /l/<token>/<id>  (lyrics file)
         String[] parts = path.split("/");
         if (parts.length < 4 || !token.equals(parts[2])) {
             simple(out, 403, "Forbidden");
@@ -183,7 +185,7 @@ final class LocalServer {
             simple(out, 400, "Bad Request");
             return;
         }
-        Library.Item it = Library.get(id);
+        Library.Item it = lyrics ? Library.getLyrics(id) : Library.get(id);
         if (it == null) {
             simple(out, 404, "Not Found");
             return;

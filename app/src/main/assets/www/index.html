@@ -17,14 +17,14 @@
    Built for a car tablet: 52px+ touch targets, dark only, colours borrowed from the cover that is playing. */
 @property --art1{syntax:'<color>';inherits:true;initial-value:#1f3a2a}
 @property --art2{syntax:'<color>';inherits:true;initial-value:#0e1a13}
-@property --artacc{syntax:'<color>';inherits:true;initial-value:#1ed760}
-@property --accent{syntax:'<color>';inherits:true;initial-value:#1ed760}
+@property --artacc{syntax:'<color>';inherits:true;initial-value:#8b7cff}
+@property --accent{syntax:'<color>';inherits:true;initial-value:#8b7cff}
 :root{
   color-scheme:dark;
   --bg:#0c0c0f; --panel:#15151a; --panel2:#1f1f26; --line:rgba(255,255,255,.08);
   --fg:#f5f5f7; --fg2:#abafb8; --fg3:#71747e;
-  --accent:#1ed760;
-  --art1:#1f3a2a; --art2:#0e1a13; --artacc:#1ed760;
+  --accent:#8b7cff;
+  --art1:#2a2550; --art2:#0e0e1a; --artacc:#8b7cff;
   --ui:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --lcd:'Share Tech Mono',ui-monospace,Menlo,Consolas,monospace;
   transition:--art1 .9s ease,--art2 .9s ease,--artacc .9s ease,--accent .5s ease;
@@ -295,7 +295,6 @@ h1,h2,p{margin:0}
 <div id="app">
   <aside id="side" class="panel" aria-label="Library">
     <div class="s-top">
-      <div class="s-brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2ffd8"/><stop offset="1" stop-color="#1ed760"/></linearGradient></defs><rect width="64" height="64" fill="#0b0c0e"/><circle cx="32" cy="32" r="23.25" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width=".9"/><g fill="url(#lg)"><rect x="12.12" y="25.44" width="5.25" height="13.12" rx="2.62"/><rect x="20.75" y="20.12" width="5.25" height="23.75" rx="2.62"/><rect x="29.38" y="14.50" width="5.25" height="35.00" rx="2.62"/><rect x="38.00" y="20.12" width="5.25" height="23.75" rx="2.62"/><rect x="46.62" y="25.44" width="5.25" height="13.12" rx="2.62"/></g></svg>Roadie</div>
       <div class="s-actions">
         <button class="btn pri" id="btnFolder"><svg class="ic"><use href="#i-folder"/></svg><span>Choose folder</span></button>
         <button class="btn sq" id="btnFiles" aria-label="Add songs"><svg class="ic"><use href="#i-plus"/></svg></button>
@@ -440,7 +439,7 @@ const SP_SLIDE=spring(1,.36), SP_IN=spring(.84,.4), SP_SHEET=spring(.86,.34), SP
 const rubber=(x,d,c=.55)=>(x*d*c)/(d+c*x);
 
 /* ---------- state ---------- */
-const prefs=Object.assign({accent:'green',style:'blur',viz:'auto',shuffle:false,repeat:'off',vol:1,wake:true},store.get('prefs',{}));
+const prefs=Object.assign({accent:'cover',style:'blur',viz:'auto',shuffle:false,repeat:'off',vol:1,wake:true},store.get('prefs',{}));
 const savePrefs=()=>store.set('prefs',prefs);
 const S={tracks:[],byId:new Map(),cats:new Map(),view:'',q:'',list:[],listIds:[],order:[],idx:-1,cur:null,playing:false,fromName:'All songs',errs:0};
 const audio=new Audio(); audio.preload='auto';
@@ -604,14 +603,14 @@ async function paletteOf(url){
     a2:`hsl(${p2.h.toFixed(0)} ${(clamp(p2.s*.75,.2,.55)*100).toFixed(0)}% 11%)`,
     va:`hsl(${p1.h.toFixed(0)} ${S1.toFixed(0)}% 64%)`, vb:`hsl(${p2.h.toFixed(0)} ${S2.toFixed(0)}% 66%)`};
 }
-const C={a:'#1ed760',b:'#7cf0b0',w:'rgba(255,255,255,.9)'};
+const C={a:'#8b7cff',b:'#b9b0ff',w:'rgba(255,255,255,.9)'};
 function applyPalette(p){
   root.style.setProperty('--art1',p.a1); root.style.setProperty('--art2',p.a2); root.style.setProperty('--artacc',p.acc);
   C.a=p.va; C.b=p.vb; applyAccent();
 }
 const ACC={green:['Green','#1ed760'],cover:['Match cover',null],violet:['Violet','#a78bfa'],coral:['Coral','#ff6b5e'],blue:['Blue','#4da3ff'],amber:['Amber','#ffb020']};
 function applyAccent(){
-  const a=prefs.accent, col=a==='cover'?(S.cur&&S.cur.pal?S.cur.pal.acc:ACC.green[1]):(ACC[a]||ACC.green)[1];
+  const a=prefs.accent, col=a==='cover'?(S.cur&&S.cur.pal?S.cur.pal.acc:'#8b7cff'):(ACC[a]||ACC.violet)[1];
   root.style.setProperty('--accent',col);
 }
 
