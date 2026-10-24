@@ -106,6 +106,8 @@ window.__roadieBack=()=>{
 };
 
 /* ============ settings ============ */
+const THEMES=[['midnight','Midnight',['#0b0b0e','#141418','#8b7cff']],['amoled','Amoled',['#020203','#0a0a0c','#8b7cff']],['ocean','Ocean',['#060c13','#0c1721','#4da3ff']],['forest','Forest',['#070c09','#0e1913','#6fd39a']],['sunset','Sunset',['#120c08','#1d1410','#ffb020']],['rose','Rose',['#120910','#1d1019','#ff7ac6']],['aurora','Aurora',['#090813','#121024','#b9b0ff']],['graphite','Graphite',['#0e0e0f','#181819','#f2f2f5']],['cover','Cover',['#101018','#1a1a26','#b9b0ff']]];
+function applyTheme(){root.dataset.theme=THEMES.some(t=>t[0]===prefs.theme)?prefs.theme:'midnight'}
 const SIZES=[['s','Small',124],['m','Medium',158],['l','Large',196]];
 function applyGrid(){const s=SIZES.find(x=>x[0]===prefs.grid)||SIZES[1];root.style.setProperty('--card',s[2]+'px')}
 function optRow(key,list,cur,extra=''){
@@ -115,6 +117,7 @@ function buildSettings(){
   const accs=Object.entries(ACC).map(([k,[l,c]])=>[k,l,c||'conic-gradient(#ff6b5e,#ffb020,#1ed760,#4da3ff,#8b7cff,#ff7ac6,#ff6b5e)']);
   $('#setBody').innerHTML=`
   <div class="sh-head"><h2 style="margin:0;font-size:26px">Settings</h2><button class="rb" data-act="setclose" aria-label="Close">${svg('down')}</button></div>
+  <section class="grp"><h3>Theme</h3><div class="theme-grid">${THEMES.map(([k,l,[a,b,c]])=>`<button class="theme${prefs.theme===k?' on':''}" data-set="theme" data-v="${k}"><span class="pv" style="background:${a}"><i style="background:${b}"></i><b style="--c:${c}"></b></span><span>${l}</span></button>`).join('')}</div><p class="hint">“Cover” tints the whole app with the colours of the song that is playing.</p></section>
   <section class="grp"><h3>Accent colour</h3>${optRow('accent',accs,prefs.accent)}<p class="hint">“Match cover” changes buttons and highlights with every song.</p></section>
   <section class="grp"><h3>Now playing look</h3>${optRow('style',STYLES,prefs.style)}</section>
   <section class="grp"><h3>Music visuals</h3>${optRow('viz',VIZ,prefs.viz)}</section>
@@ -143,7 +146,8 @@ $('#setBody').addEventListener('click',async e=>{
     if(k==='wake'){if(!prefs.wake)wake(false);else if(S.playing)wake(true)}
   }else prefs[k]=/^\d+$/.test(v)&&k==='fxAmt'?+v:v;
   savePrefs();
-  if(k==='accent')applyAccent();
+  if(k==='theme')applyTheme();
+  else if(k==='accent')applyAccent();
   else if(k==='style')applyStyle();
   else if(k==='viz'){try{resizeViz()}catch(x){}}
   else if(k==='fx'||k==='fxScope'||k==='fxAmt')fxChanged();
@@ -191,7 +195,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ============ boot ============ */
-applyStyle();applyAccent();applyGrid();uiModes();uiPlaying();
+applyTheme();applyStyle();applyAccent();applyGrid();uiModes();uiPlaying();
 $('#barVol')._set(prefs.vol);$('#npVol')._set(prefs.vol);audio.volume=prefs.vol;
 $('#barScrub')._set(0);$('#npScrub')._set(0);
 setLyrics(prefs.lyrics);
