@@ -38,10 +38,10 @@ async function paletteOf(url){
     acc:hsl2hex(p1.h,S1,62), a1:hsl2hex(p1.h,clamp(p1.s*.9,.28,.7)*100,30), a2:hsl2hex(p2.h,clamp(p2.s*.75,.2,.55)*100,11),
     va:hsl2hex(p1.h,S1,64), vb:hsl2hex(p2.h,S2,66)};
 }
-const C={a:'#8b7cff',b:'#b9b0ff',w:'rgba(255,255,255,.9)'};
-const ACC={cover:['Match cover',null],violet:['Violet','#8b7cff'],blue:['Blue','#4da3ff'],coral:['Coral','#ff6b5e'],amber:['Amber','#ffb020'],green:['Green','#1ed760'],pink:['Pink','#ff7ac6'],white:['White','#f2f2f5']};
+const C={a:'#e6e6ea',b:'#9a9aa3',w:'rgba(255,255,255,.9)'};
+const ACC={white:['Mono','#f2f2f5'],cover:['Match cover',null],blue:['Blue','#6ea8e8'],coral:['Coral','#e8806f'],amber:['Amber','#e5b04a'],green:['Green','#6fcf97'],pink:['Pink','#e8a0c4']};
 function applyAccent(){
-  const a=prefs.accent, base=(a==='cover'?(S.cur&&S.cur.pal?S.cur.pal.acc:'#8b7cff'):(ACC[a]||ACC.violet)[1]);
+  const a=prefs.accent, base=(a==='cover'?(S.cur&&S.cur.pal?S.cur.pal.acc:'#f2f2f5'):(ACC[a]||ACC.white)[1]);
   const [r,g,b]=hexRGB(base);
   root.style.setProperty('--accent',base); root.style.setProperty('--on-accent',onColor(base)); root.style.setProperty('--accent-soft',`rgba(${r},${g},${b},.2)`);
 }
@@ -52,29 +52,9 @@ function applyPalette(p){
 }
 
 /* ============ covers: real art when there is some, a generated one when not ============ */
-async function genArt(t){
-  const N=640, c=document.createElement('canvas'); c.width=c.height=N; const x=c.getContext('2d'), h=t.hue, r=rng(hash(t.path));
-  const sky=x.createLinearGradient(0,0,0,N*.66);
-  sky.addColorStop(0,`hsl(${(h+240)%360} 55% 9%)`);sky.addColorStop(.6,`hsl(${(h+290)%360} 65% 26%)`);sky.addColorStop(1,`hsl(${(h+340)%360} 85% 52%)`);
-  x.fillStyle=sky;x.fillRect(0,0,N,N);
-  for(let i=0;i<70;i++){x.fillStyle=`rgba(255,255,255,${.25+r()*.6})`;const s=r()*2.2+.4;x.fillRect(r()*N,r()*N*.5,s,s)}
-  const L=document.createElement('canvas');L.width=L.height=N;const l=L.getContext('2d');
-  const sg=l.createLinearGradient(0,150,0,450);sg.addColorStop(0,`hsl(${(h+50)%360} 95% 66%)`);sg.addColorStop(1,`hsl(${(h+330)%360} 90% 55%)`);
-  l.fillStyle=sg;l.beginPath();l.arc(N/2,300,150,0,7);l.fill();l.globalCompositeOperation='destination-out';
-  for(let k=0;k<7;k++)l.fillRect(0,300+k*22+10,N,3+k*2.6);
-  x.drawImage(L,0,0);
-  const hz=N*.62, g=x.createLinearGradient(0,hz,0,N);g.addColorStop(0,`hsl(${(h+300)%360} 60% 8%)`);g.addColorStop(1,`hsl(${(h+280)%360} 70% 14%)`);
-  x.fillStyle=g;x.fillRect(0,hz,N,N-hz);
-  x.strokeStyle=`hsla(${(h+20)%360},100%,68%,.8)`;x.lineWidth=2;x.beginPath();
-  for(let i=0;i<9;i++){const y=hz+Math.pow(i/8,2.1)*(N-hz);x.moveTo(0,y);x.lineTo(N,y)}
-  for(let i=-10;i<=10;i++){x.moveTo(N/2+i*14,hz);x.lineTo(N/2+i*95,N)}
-  x.stroke();
-  const hg=x.createLinearGradient(0,hz-30,0,hz+30);hg.addColorStop(0,'rgba(255,255,255,0)');hg.addColorStop(.5,`hsla(${(h+20)%360},100%,70%,.55)`);hg.addColorStop(1,'rgba(255,255,255,0)');
-  x.fillStyle=hg;x.fillRect(0,hz-30,N,60);
-  return await new Promise(res=>c.toBlob(b=>res(b?URL.createObjectURL(b):c.toDataURL('image/jpeg',.88)),'image/jpeg',.88));
-}
 const bigArt=new Map();
 async function fullArt(t){
+  if(COV.t[t.key])return coverBig(t);
   const ck=t.artKey||('g:'+t.key);
   if(bigArt.has(ck))return bigArt.get(ck);
   let url=null;
@@ -83,7 +63,7 @@ async function fullArt(t){
     if(m.lyr&&!t.lyr)t.lyr=m.lyr;
     if(m.pic){const b=await thumbBlob(m.pic,720,.9);if(b)url=URL.createObjectURL(b)}
   }catch(e){}
-  if(!url)url=await genArt(t);
+  if(!url)url=coverBig(t);
   bigArt.set(ck,url);
   if(bigArt.size>14){const k=bigArt.keys().next().value;URL.revokeObjectURL(bigArt.get(k));bigArt.delete(k)}
   return url;
@@ -204,7 +184,7 @@ async function loadTrack(t,{dir=0,from}={}){
   }catch(e){console.error('cover',e&&e.message,e&&e.stack)}
   if(my!==S.loadSeq)return;
   if(!t.full)t.full='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${t.hue},50%,22%)"/><stop offset="1" stop-color="hsl(${(t.hue+60)%360},60%,40%)"/></linearGradient></defs><rect width="8" height="8" fill="url(#g)"/></svg>`);
-  setText(t,0); setCover(t,dir); applyPalette(t.pal||{a1:'#2a2550',a2:'#0e0e1a',acc:'#8b7cff',va:'#8b7cff',vb:'#b9b0ff'}); mediaMeta(t); natNow(); loadLyrics(t); updateFavUI();
+  setText(t,0); setCover(t,dir); applyPalette(t.pal||{a1:'#232326',a2:'#0e0e10',acc:'#f2f2f5',va:'#e6e6ea',vb:'#9a9aa3'}); mediaMeta(t); natNow(); loadLyrics(t); updateFavUI();
 }
 audio.addEventListener('ended',()=>{
   if(S.sleep&&S.sleep.song){clearSleep();audio.pause();toast('Sleep timer: stopped after this song');return}

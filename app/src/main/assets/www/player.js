@@ -211,7 +211,8 @@ function speedMenu(){openChoice('Playback speed',[0.5,0.75,1,1.25,1.5,2].map(v=>
 function npMore(){
   const t=S.cur; if(!t)return;
   const fxName=(FX_LIST.find(f=>f[0]===prefs.fx)||['','Off'])[1];
-  openMenu({title:tTitle(t),sub:tSub(t),art:t.art,hue:t.hue,items:[
+  openMenu({title:tTitle(t),sub:tSub(t),art:coverSmall(t),hue:t.hue,items:[
+    {ic:'look',label:'Change cover',fn:()=>openCoverPicker('t',t.key,tTitle(t),tTitle(t))},
     {ic:'moon',label:'Sleep timer',small:S.sleep?(S.sleep.song?'This song':sleepLeft()+' min'):'Off',fn:sleepMenu},
     {ic:'speed',label:'Playback speed',small:S.speed===1?'Normal':S.speed+'×',fn:speedMenu},
     {ic:'look',label:'Now Playing look',small:STYLES.find(s=>s[0]===prefs.style)[1],fn:()=>openChoice('Now Playing look',STYLES.map(s=>[s[0],s[1],'look']),prefs.style,v=>{prefs.style=v;savePrefs();applyStyle()})},

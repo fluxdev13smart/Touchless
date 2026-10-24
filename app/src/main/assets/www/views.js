@@ -6,7 +6,7 @@ function favChanged(t){$$('.row[data-k]').forEach(r=>{if(r.dataset.k===t.key)$('
 /* ============ small builders ============ */
 const TABS={home:'For you',folders:'Folders',songs:'Songs',albums:'Albums',artists:'Artists',genres:'Genres',playlists:'Playlists'};
 const imgOr=(url,h,inner='')=>url?`<img src="${url}" alt="" decoding="async" loading="lazy">`:`<span class="ph" style="--h:${h}">${inner||svg('note')}</span>`;
-const thumbHTML=t=>imgOr(t.art,t.hue);
+const thumbHTML=t=>imgOr(coverSmall(t),t.hue);
 function reg(list){S.lists.push(list);return S.lists.length-1}
 function rowHTML(t,l,i,o={}){
   const on=S.cur===t;
@@ -27,15 +27,15 @@ function moreRows(){
 }
 view.addEventListener('scroll',()=>{if(S.more&&view.scrollTop+view.clientHeight>view.scrollHeight-700)moreRows()},{passive:true});
 function tintCard(name,hue,kind,key,sub,round){
-  return `<button class="card tint${round?' round':''}" data-d="${kind}" data-k="${esc(key)}" style="--h:${hue}"><span class="cv"><span>${esc(name)}</span></span><b>${esc(name)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>`;
+  const img=(kind==='folder'&&folderCover(key))||tileURL(name,kind+':'+key);
+  return `<button class="card${round?' round':''}" data-d="${kind}" data-k="${esc(key)}"><span class="cv"><img src="${img}" alt="" decoding="async" loading="lazy"></span><b>${esc(name)}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>`;
 }
 function albumCard(al){
-  return `<button class="card" data-d="album" data-k="${esc(al.key)}"><span class="cv">${imgOr(al.art,hash(al.key)%360)}</span><b>${esc(al.name)}</b><small>${esc(al.artist||plural(al.tracks.length,'song'))}</small></button>`;
+  return `<button class="card" data-d="album" data-k="${esc(al.key)}"><span class="cv">${imgOr(al.art||tileURL(al.name,'album:'+al.key),0)}</span><b>${esc(al.name)}</b><small>${esc(al.artist||plural(al.tracks.length,'song'))}</small></button>`;
 }
 function artistCard(ar){
   const sub=plural(ar.tracks.length,'song');
-  return ar.art?`<button class="card round" data-d="artist" data-k="${esc(ar.key)}"><span class="cv"><img src="${ar.art}" alt="" decoding="async" loading="lazy"></span><b>${esc(ar.name)}</b><small>${sub}</small></button>`
-    :`<button class="card round" data-d="artist" data-k="${esc(ar.key)}"><span class="cv"><span class="ph" style="--h:${hash(ar.key)%360}"><b>${esc(ar.name.charAt(0).toUpperCase())}</b></span></span><b>${esc(ar.name)}</b><small>${sub}</small></button>`;
+  return `<button class="card round" data-d="artist" data-k="${esc(ar.key)}"><span class="cv"><img src="${ar.art||tileURL(ar.name,'artist:'+ar.key)}" alt="" decoding="async" loading="lazy"></span><b>${esc(ar.name)}</b><small>${sub}</small></button>`;
 }
 function artsOf(tracks,n=4){const seen=new Set(),out=[];for(const t of tracks){if(t.art&&!seen.has(t.art)){seen.add(t.art);out.push(t.art);if(out.length>=n)break}}return out}
 function collage(tracks,h){
@@ -44,7 +44,7 @@ function collage(tracks,h){
   return null;
 }
 function folderCard(name,tracks){
-  const col=collage(tracks), a=artsOf(tracks,1)[0], h=hash(name)%360, sub=plural(tracks.length,'song');
+  const fc=folderCover(name), col=fc?null:collage(tracks), a=fc||artsOf(tracks,1)[0], h=hash(name)%360, sub=plural(tracks.length,'song');
   if(col)return `<button class="card" data-d="folder" data-k="${esc(name)}"><span class="cv col">${col}</span><b>${esc(name)}</b><small>${sub}</small></button>`;
   if(a)return `<button class="card" data-d="folder" data-k="${esc(name)}"><span class="cv"><img src="${a}" alt="" decoding="async" loading="lazy"></span><b>${esc(name)}</b><small>${sub}</small></button>`;
   return tintCard(name,h,'folder',name,sub);
@@ -162,16 +162,16 @@ function userPl(id){return data.playlists.find(p=>p.id===id)}
 function detailOf(e){
   const {kind,key}=e;
   if(kind==='album'){const al=S.albumMap.get(key);if(!al)return null;
-    return {title:al.name,kind:'Album',tracks:al.tracks,meta:[al.artist,al.year||'',plural(al.tracks.length,'song')].filter(Boolean).join(' · '),cover:al.art?`<img src="${al.art}" alt="">`:null,hue:hash(key)%360,nums:true}}
+    return {title:al.name,kind:'Album',tracks:al.tracks,meta:[al.artist,al.year||'',plural(al.tracks.length,'song')].filter(Boolean).join(' · '),cover:`<img src="${al.art||tileURL(al.name,'album:'+al.key,512)}" alt="">`,hue:hash(key)%360,nums:true}}
   if(kind==='artist'){const ar=S.artistMap.get(key);if(!ar)return null;
     const tr=ar.tracks.slice().sort((a,b)=>cmp(a.album,b.album)||(a.tn-b.tn)||cmp(tTitle(a),tTitle(b)));
-    return {title:ar.name,kind:'Artist',tracks:tr,meta:`${plural(ar.albums.size,'album')} · ${plural(tr.length,'song')}`,cover:ar.art?`<img src="${ar.art}" alt="">`:null,round:true,hue:hash(key)%360,albums:[...ar.albums].map(k=>S.albumMap.get(k)).filter(Boolean)}}
+    return {title:ar.name,kind:'Artist',tracks:tr,meta:`${plural(ar.albums.size,'album')} · ${plural(tr.length,'song')}`,cover:`<img src="${ar.art||tileURL(ar.name,'artist:'+ar.key,512)}" alt="">`,round:true,hue:hash(key)%360,albums:[...ar.albums].map(k=>S.albumMap.get(k)).filter(Boolean)}}
   if(kind==='folder'){const tr=S.cats.get(key);if(!tr)return null;
-    const col=collage(tr),a=artsOf(tr,1)[0];
-    return {title:key,kind:'Folder',tracks:tr,meta:plural(tr.length,'song'),cover:col||(a?`<img src="${a}" alt="">`:null),colClass:!!col,hue:hash(key)%360}}
+    const fc=folderCover(key),col=fc?null:collage(tr),a=fc||artsOf(tr,1)[0];
+    return {title:key,kind:'Folder',tracks:tr,meta:plural(tr.length,'song'),cover:col||`<img src="${a||tileURL(key,'folder:'+key,512)}" alt="">`,colClass:!!col,hue:hash(key)%360,folder:key}}
   if(kind==='genre'){const g=S.genreMap.get(key);if(!g)return null;
     const tr=g.tracks.slice().sort((a,b)=>cmp(tTitle(a),tTitle(b))),a=artsOf(tr,1)[0];
-    return {title:g.name,kind:'Genre',tracks:tr,meta:plural(tr.length,'song'),cover:a?`<img src="${a}" alt="">`:null,hue:hash(key)%360}}
+    return {title:g.name,kind:'Genre',tracks:tr,meta:plural(tr.length,'song'),cover:`<img src="${a||tileURL(g.name,'genre:'+g.key,512)}" alt="">`,hue:hash(key)%360}}
   if(kind==='playlist'){
     if(SMART[key]){const tr=smartTracks(key),a=artsOf(tr,1)[0];return {title:SMART[key][0],kind:'Playlist',tracks:tr,meta:plural(tr.length,'song'),cover:a?`<img src="${a}" alt="">`:null,hue:SMART[key][2],smart:key}}
     const p=userPl(key);if(!p)return null;const tr=p.keys.map(T).filter(Boolean),a=artsOf(tr,1)[0];
@@ -333,8 +333,9 @@ function trackMenu(t,ctx){
   const al=S.albumMap.get(t.album?t.album.toLowerCase():'~'+dirOf(t.path)); if(al)items.push({ic:'album',label:'Go to album',fn:()=>{closeAllSheets();openDetail('album',al.key)}});
   const ar=S.artistMap.get((t.artist||'').toLowerCase()||'~'); if(ar&&t.artist)items.push({ic:'artist',label:'Go to artist',fn:()=>{closeAllSheets();openDetail('artist',ar.key)}});
   if(ctx&&ctx.user)items.push({ic:'trash',label:'Remove from this playlist',danger:true,fn:()=>{ctx.user.keys=ctx.user.keys.filter(k=>k!==t.key);savePl();renderAll(true)}});
+  items.push({ic:'look',label:'Change cover',fn:()=>openCoverPicker('t',t.key,tTitle(t),tTitle(t))});
   items.push({ic:'info',label:'Song details',fn:()=>songInfo(t)});
-  openMenu({title:tTitle(t),sub:tSub(t),art:t.art,hue:t.hue,items});
+  openMenu({title:tTitle(t),sub:tSub(t),art:coverSmall(t),hue:t.hue,items});
 }
 function collectionMenu(name,sub,art,hue,tracks,extra=[]){
   openMenu({title:name,sub,art,hue,items:[
@@ -347,7 +348,7 @@ function collectionMenu(name,sub,art,hue,tracks,extra=[]){
 }
 function cardMenu(kind,key){
   const d=detailOf({kind,key}); if(!d||!d.tracks.length)return;
-  collectionMenu(d.title,d.meta,artsOf(d.tracks,1)[0],d.hue,d.tracks,d.user?[{ic:'edit',label:'Rename',fn:()=>renamePl(d.user)},{ic:'trash',label:'Delete playlist',danger:true,fn:()=>delPl(d.user)}]:[]);
+  collectionMenu(d.title,d.meta,artsOf(d.tracks,1)[0],d.hue,d.tracks,kind==='folder'?[{ic:'look',label:'Change folder cover',fn:()=>openCoverPicker('f',key,key,key)}]:d.user?[{ic:'edit',label:'Rename',fn:()=>renamePl(d.user)},{ic:'trash',label:'Delete playlist',danger:true,fn:()=>delPl(d.user)}]:[]);
 }
 async function renamePl(p){const n=await askText('Rename playlist',p.name,'Rename');if(!n)return;p.name=n;savePl();renderAll(true)}
 function delPl(p){
@@ -368,7 +369,7 @@ view.addEventListener('click',e=>{
     if(a==='shuffleall'){playShuffled(S.tracks,'All songs');e.stopPropagation();return}
     if(a==='dplay'){playTracks(S.detail.tracks,0,S.detail.title);e.stopPropagation();return}
     if(a==='dshuffle'){playShuffled(S.detail.tracks,S.detail.title);e.stopPropagation();return}
-    if(a==='dmore'){const d=S.detail;collectionMenu(d.title,d.meta,artsOf(d.tracks,1)[0],d.hue,d.tracks,d.user?[{ic:'edit',label:'Rename',fn:()=>renamePl(d.user)},{ic:'trash',label:'Delete playlist',danger:true,fn:()=>delPl(d.user)}]:[]);e.stopPropagation();return}
+    if(a==='dmore'){const d=S.detail;collectionMenu(d.title,d.meta,artsOf(d.tracks,1)[0],d.hue,d.tracks,d.folder?[{ic:'look',label:'Change folder cover',fn:()=>openCoverPicker('f',d.folder,d.title,d.title)}]:d.user?[{ic:'edit',label:'Rename',fn:()=>renamePl(d.user)},{ic:'trash',label:'Delete playlist',danger:true,fn:()=>delPl(d.user)}]:[]);e.stopPropagation();return}
     if(a==='newpl'){newPlaylist();e.stopPropagation();return}
     return;
   }

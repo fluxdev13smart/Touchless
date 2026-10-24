@@ -5,6 +5,7 @@ becomes a category (Rock, Chill, Arabic…). Roadie has its own **10-band equali
 shapes the sound, so it works even when the car's own EQ is locked.
 
 - Browse like Retro Music Player: **Folders** (your main-folder categories), Songs, Albums, Artists, Genres and Playlists, plus a "For you" home with last added, recently played and favourites
+- Songs, folders, albums and artists without art get a quiet generated cover (8 styles, 10 muted colours). Change the cover of any song or folder, or pick your own picture
 - Cover art is read from your songs, and the full-screen player takes its colours from the cover
 - Slide animation between songs (buttons or swipe) and 8 Now Playing looks: Blur, Card, Vinyl, Full, Adaptive, Circle, Classic, Minimal
 - Live visuals while playing (Halo, Skyline, Warp, Waves, Rings, or Auto to rotate them)

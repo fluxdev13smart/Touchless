@@ -106,7 +106,7 @@ window.__roadieBack=()=>{
 };
 
 /* ============ settings ============ */
-const THEMES=[['midnight','Midnight',['#0b0b0e','#141418','#8b7cff']],['amoled','Amoled',['#020203','#0a0a0c','#8b7cff']],['ocean','Ocean',['#060c13','#0c1721','#4da3ff']],['forest','Forest',['#070c09','#0e1913','#6fd39a']],['sunset','Sunset',['#120c08','#1d1410','#ffb020']],['rose','Rose',['#120910','#1d1019','#ff7ac6']],['aurora','Aurora',['#090813','#121024','#b9b0ff']],['graphite','Graphite',['#0e0e0f','#181819','#f2f2f5']],['cover','Cover',['#101018','#1a1a26','#b9b0ff']]];
+const THEMES=[['graphite','Mono',['#0e0e0f','#181819','#f2f2f5']],['midnight','Midnight',['#0b0b0e','#141418','#f2f2f5']],['amoled','Amoled',['#020203','#0a0a0c','#f2f2f5']],['ocean','Ocean',['#060c13','#0c1721','#9db3c4']],['forest','Forest',['#070c09','#0e1913','#a0b6a7']],['sunset','Sunset',['#120c08','#1d1410','#c1ab9b']],['rose','Rose',['#120910','#1d1019','#c3a6b8']],['cover','Cover',['#101018','#1a1a26','#b4b6c0']]];
 function applyTheme(){root.dataset.theme=THEMES.some(t=>t[0]===prefs.theme)?prefs.theme:'midnight'}
 const SIZES=[['s','Small',124],['m','Medium',158],['l','Large',196]];
 function applyGrid(){const s=SIZES.find(x=>x[0]===prefs.grid)||SIZES[1];root.style.setProperty('--card',s[2]+'px')}
@@ -114,7 +114,7 @@ function optRow(key,list,cur,extra=''){
   return `<div class="opts">${list.map(([v,l,c])=>`<button class="chip${String(v)===String(cur)?' on':''}" data-set="${key}" data-v="${v}">${c?`<span class="sw" style="background:${c}"></span>`:''}${esc(l)}</button>`).join('')}${extra}</div>`;
 }
 function buildSettings(){
-  const accs=Object.entries(ACC).map(([k,[l,c]])=>[k,l,c||'conic-gradient(#ff6b5e,#ffb020,#1ed760,#4da3ff,#8b7cff,#ff7ac6,#ff6b5e)']);
+  const accs=Object.entries(ACC).map(([k,[l,c]])=>[k,l,c||'conic-gradient(#e8806f,#e5b04a,#6fcf97,#6ea8e8,#e8a0c4,#e8806f)']);
   $('#setBody').innerHTML=`
   <div class="sh-head"><h2 style="margin:0;font-size:26px">Settings</h2><button class="rb" data-act="setclose" aria-label="Close">${svg('down')}</button></div>
   <section class="grp"><h3>Theme</h3><div class="theme-grid">${THEMES.map(([k,l,[a,b,c]])=>`<button class="theme${prefs.theme===k?' on':''}" data-set="theme" data-v="${k}"><span class="pv" style="background:${a}"><i style="background:${b}"></i><b style="--c:${c}"></b></span><span>${l}</span></button>`).join('')}</div><p class="hint">“Cover” tints the whole app with the colours of the song that is playing.</p></section>

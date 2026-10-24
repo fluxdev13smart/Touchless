@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -33,6 +34,8 @@ public class MainActivity extends Activity {
     private static final int REQ_TREE = 7001;
     private static final int REQ_STORAGE = 7002;
     private static final int REQ_NOTIF = 7003;
+    private static final int REQ_IMG = 7004;
+    private ValueCallback<Uri[]> imgChooser;
 
     private WebView web;
     private LocalServer server;
@@ -77,7 +80,24 @@ public class MainActivity extends Activity {
                 return !url.startsWith("http://127.0.0.1:");
             }
         });
-        web.setWebChromeClient(new WebChromeClient());
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView w, ValueCallback<Uri[]> cb, FileChooserParams params) {
+                if (imgChooser != null) imgChooser.onReceiveValue(null);
+                imgChooser = cb;
+                try {
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("image/*");
+                    startActivityForResult(Intent.createChooser(i, "Choose a cover"), REQ_IMG);
+                } catch (Exception e) {
+                    imgChooser = null;
+                    cb.onReceiveValue(null);
+                    return false;
+                }
+                return true;
+            }
+        });
         if (Build.VERSION.SDK_INT >= 26) {
             web.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false);
         }
@@ -145,6 +165,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
+        if (req == REQ_IMG) {
+            if (imgChooser != null) {
+                Uri[] r = null;
+                if (res == RESULT_OK && data != null) r = WebChromeClient.FileChooserParams.parseResult(res, data);
+                imgChooser.onReceiveValue(r);
+                imgChooser = null;
+            }
+            return;
+        }
         if (req != REQ_TREE) return;
         if (res != RESULT_OK || data == null || data.getData() == null) {
             js("window.__roadieLibrary&&window.__roadieLibrary(false)");
