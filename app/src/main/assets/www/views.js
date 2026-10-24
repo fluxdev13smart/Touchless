@@ -199,7 +199,7 @@ function renderHead(){
   let sub='Library',title=TABS[S.tab],extra='';
   const folderBtn=`<button class="chip" data-act="folder">${svg('folder')}<span>Change folder</span></button>`;
   if(searching){sub='Search';title=`“${S.q.trim()}”`}
-  else if(top){const d=S.detail;sub=d?d.kind:'';title=d?d.title:''}
+  else if(top){const d=S.detail;sub=d?d.kind:'';title=''}
   else{
     if(S.tab==='home'){sub=S.tracks.length?`${plural(S.tracks.length,'song')} in ${plural(S.cats.size,'folder')}`:'Welcome';title='For you'}
     else if(S.tab==='songs')sub=plural(S.tracks.length,'song');

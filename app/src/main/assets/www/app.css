@@ -443,3 +443,4 @@ h1,h2{text-wrap:balance}
 .cvp-s.on{box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--fg)}
 .cvp-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:auto;padding-top:10px}
 @media (max-width:640px){.cvp-box{grid-template-columns:1fr}.cvp-prev img{max-width:220px}}
+#head h1:empty{display:none}

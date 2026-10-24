@@ -24,8 +24,8 @@ const store={
   get(k,d){try{const v=localStorage.getItem('dash.'+k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem('dash.'+k,JSON.stringify(v))}catch(e){}}
 };
-const prefs=Object.assign({theme:'graphite',accent:'white',style:'blur',viz:'auto',fx:'snow',fxScope:'np',fxAmt:2,shuffle:false,repeat:'off',vol:1,wake:true,grid:'m',fade:true,lyrics:false,sort:{}},store.get('prefs',{}));
-if(prefs.ver!==2){prefs.ver=2;prefs.accent='white';prefs.theme='graphite'}
+const prefs=Object.assign({theme:'graphite',accent:'white',style:'blur',viz:'halo',fx:'snow',fxScope:'np',fxAmt:2,shuffle:false,repeat:'off',vol:1,wake:true,grid:'m',fade:true,lyrics:false,sort:{}},store.get('prefs',{}));
+if(prefs.ver!==2){prefs.ver=2;prefs.accent='white';prefs.theme='graphite';prefs.viz='halo'}
 prefs.sort=Object.assign({songs:'title',albums:'name',artists:'name'},prefs.sort||{});
 const savePrefs=()=>store.set('prefs',prefs);
 const data={

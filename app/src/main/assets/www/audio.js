@@ -33,10 +33,10 @@ async function paletteOf(url){
   if(!p1||p1.s<.14)return {acc:'#e4e4ea',a1:'#33363f',a2:'#0d0e12',va:'#e4e4ea',vb:'#9aa0b4',soft};
   const hd=(a,b)=>{const q=Math.abs(a-b)%360;return Math.min(q,360-q)};
   const p2=rk.find(p=>hd(p.h,p1.h)>=40&&p.w>=p1.w*.12)||{h:(p1.h+38)%360,s:p1.s,l:p1.l};
-  const S1=clamp(p1.s,.5,.95)*100, S2=clamp(p2.s,.45,.9)*100;
+  const S1=clamp(p1.s,.4,.8)*100, S2=clamp(p2.s,.45,.9)*100;
   return {soft,
     acc:hsl2hex(p1.h,S1,62), a1:hsl2hex(p1.h,clamp(p1.s*.9,.28,.7)*100,30), a2:hsl2hex(p2.h,clamp(p2.s*.75,.2,.55)*100,11),
-    va:hsl2hex(p1.h,S1,64), vb:hsl2hex(p2.h,S2,66)};
+    va:hsl2hex(p1.h,Math.min(S1,55),70), vb:hsl2hex(p1.h,Math.min(S1,35),86)};
 }
 const C={a:'#e6e6ea',b:'#9a9aa3',w:'rgba(255,255,255,.9)'};
 const ACC={white:['Mono','#f2f2f5'],cover:['Match cover',null],blue:['Blue','#6ea8e8'],coral:['Coral','#e8806f'],amber:['Amber','#e5b04a'],green:['Green','#6fcf97'],pink:['Pink','#e8a0c4']};
