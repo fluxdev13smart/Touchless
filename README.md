@@ -1,7 +1,7 @@
-# Roadie
+# Passage
 
 A dark, Spotify-style music player for a car tablet. Pick one main folder; every folder inside it
-becomes a category (Rock, Chill, Arabic…). Roadie has its own **10-band equaliser** that really
+becomes a category (Rock, Chill, Arabic…). Passage has its own **10-band equaliser** that really
 shapes the sound, so it works even when the car's own EQ is locked.
 
 - Browse like Retro Music Player: **Folders** (your main-folder categories), Songs, Albums, Artists, Genres and Playlists, plus a "For you" home with last added, recently played and favourites
@@ -16,17 +16,17 @@ shapes the sound, so it works even when the car's own EQ is locked.
 
 ## Get the APK
 
-1. Open the **Releases** page of this repo and download **Roadie.apk**
-   (or open **Actions → Build Roadie APK → latest run → Artifacts**).
+1. Open the **Releases** page of this repo and download **Passage.apk**
+   (or open **Actions → Build APK → latest run → Artifacts**).
 2. Copy it to the tablet, open it, and allow installs from your browser or file manager when asked.
-3. Open **Roadie**, tap **Choose folder**, and pick your main music folder.
+3. Open **Passage**, tap **Choose folder**, and pick your main music folder.
 
-The APK is rebuilt on every push to `main`. To rebuild by hand: **Actions → Build Roadie APK → Run workflow**.
+The APK is rebuilt on every push to `main`. To rebuild by hand: **Actions → Build APK → Run workflow**.
 
 ## Needs
 
 - Android 5.0 or newer, with an up-to-date **Android System WebView** (Chrome 111+ looks best; older versions fall back gracefully)
-- A system folder picker. If the device has none, Roadie scans the `Music` folder and any USB or SD card instead
+- A system folder picker. If the device has none, Passage scans the `Music` folder and any USB or SD card instead
 
 ## Project layout
 

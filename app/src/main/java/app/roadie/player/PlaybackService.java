@@ -12,7 +12,7 @@ import android.os.Build;
 import android.os.IBinder;
 
 /**
- * Keeps Roadie alive while music plays, so the sound carries on when the screen
+ * Keeps Passage alive while music plays, so the sound carries on when the screen
  * is off or another app (like navigation) is in front.
  */
 public class PlaybackService extends Service {
@@ -20,7 +20,7 @@ public class PlaybackService extends Service {
     private static final int NOTIFICATION_ID = 11;
     private static final String CHANNEL = "roadie_playback";
 
-    private static volatile String title = "Roadie";
+    private static volatile String title = "Passage";
     private static volatile String artist = "";
 
     private static Notification build(Context c) {
@@ -60,7 +60,7 @@ public class PlaybackService extends Service {
 
     /** Starts (or refreshes) the notification while playing, and removes it when paused. */
     static void sync(Context c, boolean playing, String t, String a) {
-        title = (t == null || t.isEmpty()) ? "Roadie" : t;
+        title = (t == null || t.isEmpty()) ? "Passage" : t;
         artist = a == null ? "" : a;
         Intent i = new Intent(c, PlaybackService.class);
         try {

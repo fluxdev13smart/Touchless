@@ -40,18 +40,18 @@ jobs:
         run: gradle assembleRelease --stacktrace
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk Roadie.apk
+        run: cp app/build/outputs/apk/release/app-release.apk Passage.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Roadie-apk
-          path: Roadie.apk
+          name: Passage-apk
+          path: Passage.apk
 
       - name: Publish to the "latest" release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Roadie (latest build)
-          body: Latest build from the main branch. Download Roadie.apk below, open it on your Android tablet and allow installs from this source.
-          files: Roadie.apk
+          name: Passage (latest build)
+          body: Latest build from the main branch. Download Passage.apk below, open it on your Android tablet and allow installs from this source.
+          files: Passage.apk
           fail_on_unmatched_files: true

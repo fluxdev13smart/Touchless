@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
             server = new LocalServer(this, token);
             server.start();
         } catch (Exception e) {
-            Toast.makeText(this, "Roadie could not start its audio server.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Passage could not start its audio server.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -242,7 +242,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(code, perms, results);
         if (code == REQ_STORAGE) {
             if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) scanFallbackAsync();
-            else js("window.__roadieError&&window.__roadieError('Roadie needs storage access to find your music.')");
+            else js("window.__roadieError&&window.__roadieError('Passage needs storage access to find your music.')");
         }
     }
 
@@ -276,7 +276,7 @@ public class MainActivity extends Activity {
     // Media session: steering-wheel buttons, Bluetooth and the lock screen
 
     private void initSession() {
-        session = new MediaSession(this, "Roadie");
+        session = new MediaSession(this, "Passage");
         session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
         session.setCallback(new MediaSession.Callback() {
             @Override public void onPlay() { js("window.__roadieKey&&__roadieKey('play')"); }

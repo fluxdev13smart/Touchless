@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Roadie"
+rootProject.name = "Passage"
 include(":app")
